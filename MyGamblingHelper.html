@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>My Gambling Helper</title>
+
+  <style>
+    :root {
+      --rdeca: #e50914;
+      --temno-rdeca: #8b0000;
+      --crna: #090909;
+      --siva: #171717;
+      --svetlo-siva: #292929;
+      --bela: #ffffff;
+      --zlata: #ffd700;
+      --zelena: #36d17c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 30px 16px;
+      color: var(--bela);
+      background:
+        radial-gradient(circle at top, #370006 0%, var(--crna) 48%),
+        var(--crna);
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .aplikacija {
+      width: min(760px, 100%);
+      padding: 32px;
+      text-align: center;
+      background: rgba(15, 15, 15, 0.97);
+      border: 3px solid var(--rdeca);
+      border-radius: 24px;
+      box-shadow:
+        0 0 35px rgba(229, 9, 20, 0.4),
+        0 18px 70px rgba(0, 0, 0, 0.8);
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--bela);
+      font-size: clamp(32px, 7vw, 58px);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 3px 3px 0 var(--rdeca);
+    }
+
+    .podnaslov {
+      margin: 12px 0 28px;
+      color: #cccccc;
+      line-height: 1.5;
+    }
+
+    .stanje {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .znacka {
+      padding: 9px 14px;
+      border: 1px solid #555555;
+      border-radius: 999px;
+      background: #202020;
+      font-size: 14px;
+    }
+
+    .izboljsava {
+      color: var(--zlata);
+      border-color: var(--zlata);
+    }
+
+    .slot {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-width: 510px;
+      margin: 0 auto 24px;
+      padding: 18px;
+      background: #000000;
+      border: 4px solid var(--bela);
+      border-radius: 18px;
+      box-shadow: inset 0 0 25px rgba(229, 9, 20, 0.35);
+    }
+
+    .kolut {
+      min-height: 130px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: linear-gradient(#ffffff, #d8d8d8);
+      color: #111111;
+      border: 5px solid var(--rdeca);
+      border-radius: 14px;
+      font-size: clamp(46px, 11vw, 78px);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .vrtenje {
+      animation: tresenje 0.12s linear infinite;
+    }
+
+    @keyframes tresenje {
+      0% {
+        transform: translateY(-4px);
+      }
+
+      50% {
+        transform: translateY(4px);
+      }
+
+      100% {
+        transform: translateY(-4px);
+      }
+    }
+
+    button {
+      padding: 15px 28px;
+      color: var(--bela);
+      background: linear-gradient(135deg, var(--rdeca), var(--temno-rdeca));
+      border: 2px solid var(--bela);
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 0 7px 0 #570006;
+      transition: 0.15s;
+    }
+
+    button:hover {
+      filter: brightness(1.18);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(5px);
+      box-shadow: 0 2px 0 #570006;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+      transform: none;
+    }
+
+    .rezultat {
+      min-height: 100px;
+      margin-top: 28px;
+      padding: 22px;
+      text-align: left;
+      background: var(--siva);
+      border-left: 6px solid var(--rdeca);
+      border-radius: 12px;
+      line-height: 1.6;
+    }
+
+    .rezultat h2 {
+      margin: 0 0 8px;
+      color: var(--rdeca);
+    }
+
+    .rezultat p {
+      margin: 0;
+    }
+
+    .uganka-obrazec {
+      display: none;
+      margin-top: 16px;
+    }
+
+    .uganka-obrazec input {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 13px;
+      color: var(--bela);
+      background: #080808;
+      border: 2px solid #666666;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+
+    .uganka-obrazec input:focus {
+      outline: none;
+      border-color: var(--rdeca);
+    }
+
+    .uganka-obrazec button {
+      padding: 10px 18px;
+      font-size: 15px;
+    }
+
+    #potrditev {
+      margin-top: 14px;
+      font-weight: bold;
+    }
+
+    .uspeh {
+      color: var(--zelena);
+    }
+
+    .napaka {
+      color: #ff6b6b;
+    }
+
+    .opomba {
+      margin: 24px 0 0;
+      color: #9d9d9d;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .jackpot {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      place-items: center;
+      padding: 30px;
+      text-align: center;
+      color: var(--bela);
+      background:
+        radial-gradient(circle, #b8000c 0%, #410004 45%, #000000 100%);
+      animation: utripanje 0.8s infinite alternate;
+    }
+
+    .jackpot.prikazi {
+      display: grid;
+    }
+
+    .jackpot-vsebina {
+      max-width: 1100px;
+    }
+
+    .jackpot h2 {
+      margin: 0 0 25px;
+      color: var(--zlata);
+      font-size: clamp(55px, 15vw, 150px);
+      line-height: 0.9;
+      text-shadow:
+        0 0 15px var(--zlata),
+        5px 5px 0 #8b0000;
+    }
+
+    .jackpot p {
+      margin: 0;
+      font-size: clamp(24px, 5vw, 56px);
+      font-weight: bold;
+      line-height: 1.25;
+    }
+
+    .jackpot button {
+      margin-top: 35px;
+      background: #000000;
+      border-color: var(--zlata);
+      box-shadow: 0 7px 0 #6f5d00;
+    }
+
+    @keyframes utripanje {
+      from {
+        filter: brightness(0.9);
+      }
+
+      to {
+        filter: brightness(1.25);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .aplikacija {
+        padding: 22px 14px;
+      }
+
+      .slot {
+        gap: 7px;
+        padding: 10px;
+      }
+
+      .kolut {
+        min-height: 90px;
+        border-width: 3px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="aplikacija">
+    <h1>My Gambling Helper</h1>
+
+    <p class="podnaslov">
+      Zavrti brezplačni avtomat in preveri, ali te čaka misel, vprašanje,
+      lepo sporočilo, uganka ali jackpot.
+    </p>
+
+    <div class="stanje">
+      <span class="znacka" id="stevec">Število vrtljajev: 0</span>
+      <span class="znacka" id="verjetnost">Možnost zadetka: 1 : 35</span>
+      <span class="znacka izboljsava" id="bonus">Jackpot bonus ni aktiven</span>
+    </div>
+
+    <section class="slot" aria-label="Igralni avtomat">
+      <div class="kolut" id="kolut1">🍒</div>
+      <div class="kolut" id="kolut2">7️⃣</div>
+      <div class="kolut" id="kolut3">⭐</div>
+    </section>
+
+    <button id="zavrtiGumb" onclick="zavrti()">Zavrti</button>
+
+    <section class="rezultat" aria-live="polite">
+      <h2 id="rezultatNaslov">Pripravljen?</h2>
+      <p id="rezultatBesedilo">
+        Pritisni gumb in zavrti avtomat.
+      </p>
+
+      <div class="uganka-obrazec" id="ugankaObrazec">
+        <input
+          id="odgovor"
+          type="text"
+          placeholder="Vpiši svoj odgovor..."
+          autocomplete="off"
+        >
+        <button onclick="preveriOdgovor()">Preveri odgovor</button>
+        <p id="potrditev"></p>
+      </div>
+    </section>
+
+    <p class="opomba">
+      Aplikacija ne uporablja pravega denarja. Osnovna možnost posebnega
+      zadetka je 1 : 35, možnost jackpota ob zadetku pa 1 : 100.
+    </p>
+  </main>
+
+  <div class="jackpot" id="jackpot">
+    <div class="jackpot-vsebina">
+      <h2>JACKPOT!</h2>
+
+      <p>
+        Zapravi preostali del dneva z osebami, ki jih imaš rad,
+        in jim pokaži, koliko ti pomenijo &lt;3
+      </p>
+
+      <button onclick="zapriJackpot()">Nadaljuj z bonusom</button>
+    </div>
+  </div>
+
+  <script>
+    const simboli = ["🍒", "🍋", "🍉", "🔔", "⭐", "💎", "7️⃣", "❤️"];
+
+    const zanimivosti = [
+      "Hobotnica ima tri srca.",
+      "Med se lahko ob pravilnem shranjevanju ohrani zelo dolgo.",
+      "Vidre se med spanjem v vodi včasih držijo za tace.",
+      "Banane so botanično jagode, jagode pa niso.",
+      "Dan na Veneri je daljši od njenega leta.",
+      "Morski konjiček je ena redkih živali, pri kateri mladiče nosi samec.",
+      "Prstni odtisi koal so zelo podobni človeškim.",
+      "Vrane si lahko zapomnijo človeške obraze."
+    ];
+
+    const vprasanja = [
+      "Kaj ti je v zadnjem času polepšalo dan?",
+      "Katera oseba te vedno spravi v boljšo voljo?",
+      "Na kaj pri sebi si najbolj ponosen?",
+      "Kaj bi naredil, če bi vedel, da ti zagotovo uspe?",
+      "Kateri skupni spomin s prijateljem ti največ pomeni?",
+      "Komu bi danes lahko poslal lepo sporočilo?",
+      "Katero svojo navado bi rad izboljšal?",
+      "Kaj je nekaj, za kar si danes hvaležen?"
+    ];
+
+    const lepaSporocila = [
+      "Tvoja prisotnost lahko nekomu pomeni več, kot se zavedaš.",
+      "Ni ti treba biti popoln, da bi bil pomemben.",
+      "Majhni koraki so še vedno napredek.",
+      "Zaslužiš si enako prijaznost, kot jo namenjaš drugim.",
+      "Nekdo je vesel, da te ima v svojem življenju.",
+      "Tudi težek dan ne izbriše vsega, kar si že dosegel.",
+      "Svet je lepši zaradi prijaznosti, ki jo deliš.",
+      "Vzemi si trenutek in bodi ponosen nase."
+    ];
+
+    const uganke = [
+      {
+        vprasanje: "Kaj ima ključe, vendar ne odpira nobenih vrat?",
+        odgovori: ["klavir", "piano"]
+      },
+      {
+        vprasanje: "Kaj postaja bolj mokro, medtem ko suši?",
+        odgovori: ["brisača", "brisaca"]
+      },
+      {
+        vprasanje: "Kaj ima vrat, nima pa glave?",
+        odgovori: ["steklenica", "flaša", "flasa"]
+      },
+      {
+        vprasanje: "Kaj gre okoli sveta, vendar ostane v kotu?",
+        odgovori: ["znamka", "poštna znamka", "postna znamka"]
+      },
+      {
+        vprasanje: "Kaj ima veliko zob, vendar ne more ugrizniti?",
+        odgovori: ["glavnik"]
+      },
+      {
+        vprasanje: "Več ko je vzameš, več je pustiš za seboj. Kaj je to?",
+        odgovori: ["koraki", "stopinje", "korak"]
+      }
+    ];
+
+    let steviloVrtljajev = 0;
+    let bonusAktiven = false;
+    let trenutnaUganka = null;
+    let vrtenjePoteka = false;
+
+    function nakljucniElement(seznam) {
+      return seznam[Math.floor(Math.random() * seznam.length)];
+    }
+
+    function nastaviKolute(prvi, drugi, tretji) {
+      document.getElementById("kolut1").textContent = prvi;
+      document.getElementById("kolut2").textContent = drugi;
+      document.getElementById("kolut3").textContent = tretji;
+    }
+
+    function nakljucniSimboli() {
+      nastaviKolute(
+        nakljucniElement(simboli),
+        nakljucniElement(simboli),
+        nakljucniElement(simboli)
+      );
+    }
+
+    function posodobiStanje() {
+      document.getElementById("stevec").textContent =
+        "Število vrtljajev: " + steviloVrtljajev;
+
+      document.getElementById("verjetnost").textContent =
+        bonusAktiven
+          ? "Možnost zadetka: 1 : 15"
+          : "Možnost zadetka: 1 : 35";
+
+      document.getElementById("bonus").textContent =
+        bonusAktiven
+          ? "Jackpot bonus je aktiven"
+          : "Jackpot bonus ni aktiven";
+    }
+
+    function pocistiRezultat() {
+      trenutnaUganka = null;
+
+      document.getElementById("ugankaObrazec").style.display = "none";
+      document.getElementById("odgovor").value = "";
+      document.getElementById("potrditev").textContent = "";
+      document.getElementById("potrditev").className = "";
+    }
+
+    function prikaziRezultat(naslov, besedilo) {
+      document.getElementById("rezultatNaslov").textContent = naslov;
+      document.getElementById("rezultatBesedilo").textContent = besedilo;
+    }
+
+    function prikaziNagrado() {
+      const vrsta = Math.floor(Math.random() * 4);
+
+      if (vrsta === 0) {
+        prikaziRezultat("Random fun fact", nakljucniElement(zanimivosti));
+        return;
+      }
+
+      if (vrsta === 1) {
+        prikaziRezultat("Osebno vprašanje", nakljucniElement(vprasanja));
+        return;
+      }
+
+      if (vrsta === 2) {
+        prikaziRezultat("Lepo sporočilo", nakljucniElement(lepaSporocila));
+        return;
+      }
+
+      trenutnaUganka = nakljucniElement(uganke);
+      prikaziRezultat("Uganka", trenutnaUganka.vprasanje);
+      document.getElementById("ugankaObrazec").style.display = "block";
+      document.getElementById("odgovor").focus();
+    }
+
+    function zavrti() {
+      if (vrtenjePoteka) {
+        return;
+      }
+
+      vrtenjePoteka = true;
+      steviloVrtljajev++;
+
+      const gumb = document.getElementById("zavrtiGumb");
+      const koluti = document.querySelectorAll(".kolut");
+
+      gumb.disabled = true;
+      gumb.textContent = "Vrtenje...";
+      koluti.forEach(kolut => kolut.classList.add("vrtenje"));
+
+      pocistiRezultat();
+      prikaziRezultat("Avtomat se vrti...", "Srečno!");
+      posodobiStanje();
+
+      const animacija = setInterval(nakljucniSimboli, 90);
+
+      setTimeout(() => {
+        clearInterval(animacija);
+        koluti.forEach(kolut => kolut.classList.remove("vrtenje"));
+
+        const mejaZadetka = bonusAktiven ? 15 : 35;
+        const jeZadetek = Math.floor(Math.random() * mejaZadetka) === 0;
+
+        if (!jeZadetek) {
+          nakljucniSimboli();
+          prikaziRezultat(
+            "Tokrat brez zadetka",
+            "Poskusi še enkrat. Naslednji vrtljaj je lahko tvoj!"
+          );
+        } else {
+          nastaviKolute("⭐", "⭐", "⭐");
+
+          const jeJackpot = Math.floor(Math.random() * 100) === 0;
+
+          if (jeJackpot) {
+            nastaviKolute("7️⃣", "7️⃣", "7️⃣");
+            bonusAktiven = true;
+            document.getElementById("jackpot").classList.add("prikazi");
+            prikaziRezultat(
+              "Jackpot!",
+              "Odklenil si trajni bonus: možnost običajnega zadetka je zdaj 1 : 15."
+            );
+          } else {
+            prikaziNagrado();
+          }
+        }
+
+        posodobiStanje();
+        gumb.disabled = false;
+        gumb.textContent = "Zavrti";
+        vrtenjePoteka = false;
+      }, 1200);
+    }
+
+    function normalizirajBesedilo(besedilo) {
+      return besedilo
+        .toLowerCase()
+        .trim()
+        .replace(/[.,!?]/g, "")
+        .replace(/\s+/g, " ");
+    }
+
+    function preveriOdgovor() {
+      if (!trenutnaUganka) {
+        return;
+      }
+
+      const vnos = normalizirajBesedilo(
+        document.getElementById("odgovor").value
+      );
+
+      const potrditev = document.getElementById("potrditev");
+
+      if (vnos === "") {
+        potrditev.textContent = "Najprej vpiši odgovor.";
+        potrditev.className = "napaka";
+        return;
+      }
+
+      const jePravilen = trenutnaUganka.odgovori.some(
+        odgovor => normalizirajBesedilo(odgovor) === vnos
+      );
+
+      if (jePravilen) {
+        potrditev.textContent = "Pravilno! Odlično ti gre.";
+        potrditev.className = "uspeh";
+      } else {
+        potrditev.textContent =
+          "Ni pravilno. Poskusi znova ali malo drugače zapiši odgovor.";
+        potrditev.className = "napaka";
+      }
+    }
+
+    function zapriJackpot() {
+      document.getElementById("jackpot").classList.remove("prikazi");
+      posodobiStanje();
+    }
+
+    document
+      .getElementById("odgovor")
+      .addEventListener("keydown", function(dogodek) {
+        if (dogodek.key === "Enter") {
+          preveriOdgovor();
+        }
+      });
+
+    posodobiStanje();
+  </script>
+</body>
+</html>
